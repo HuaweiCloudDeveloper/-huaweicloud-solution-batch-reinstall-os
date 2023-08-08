@@ -1,0 +1,95 @@
+{
+    "terraform": {
+        "required_providers": [
+            {
+                "huaweicloud": {
+                    "source": "huawei.com/provider/huaweicloud",
+                    "version": ">=1.37.1"
+                }
+            }
+        ]
+    },
+    "provider": {
+        "huaweicloud": {
+            "cloud": "myhuaweicloud.com",
+            "endpoints": {
+                "iam": "iam.ap-southeast-3.myhuaweicloud.com",
+                "dns": "dns.ap-southeast-3.myhuaweicloud.com"
+            },
+            "insecure": true,
+            "region": "ap-southeast-3",
+            "auth_url": "https://iam.ap-southeast-3.myhuaweicloud.com/v3"
+        }
+    },
+    "variable": {
+        "function_name": {
+            "default": "batch_reinstall_os_demo",
+            "description": "Function name in the format {function_name}_fgs, which identifies a function and serves as the prefix of other resource names. It must be unique and can contain 1 to 56 characters, including letters, digits, underscores (_), and hyphens (-). It must start with a letter. Default name: batch_reinstall_os_demo. ",
+            "type": "string",
+            "nullable": "false",
+            "validation": {
+                "condition": "${length(regexall(\"^[a-zA-Z][-\\\\w]{0,55}$\",var.function_name))>0}",
+                "error_message": "Invalid input. Please re-enter."
+            }
+        },
+        "image_id": {
+            "default": "reinstall",
+            "description": "Enter reinstall to reinstall the OS or enter the image ID to change the OS. Obtain the ID by referring to the parameter description in the Deployment Guide. Default value: reinstall. ",
+            "type": "string",
+            "nullable": "false",
+            "validation": {
+                "condition": "${length(regexall(\"^(reinstall|[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12})$\",var.image_id))>0}",
+                "error_message": "Invalid input. Please re-enter."
+            }
+        },
+        "ids": {
+            "default": "",
+            "description": "IDs of the ECSs to reinstall or change the OS. Separate the IDs with spaces. For example, id1 id2 .... ",
+            "type": "string",
+            "nullable": "false",
+            "validation": {
+                "condition": "${length(regexall(\"^([a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12}(\\\\s[a-z0-9]{8}(-[a-z0-9]{4}){3}-[a-z0-9]{12})*)$\",var.ids))>0}",
+                "error_message": "Invalid input. Please re-enter."
+            }
+        },
+        "passwords": {
+            "default": "",
+            "description": "Passwords of the ECSs corresponding to the IDs. Separate the passwords with spaces. For example, password1 password2 .... ",
+            "type": "string",
+            "nullable": "false",
+            "sensitive": "true"
+        }
+    },
+    "resource": {
+        "huaweicloud_identity_agency": {
+            "identity_agency": {
+                "name": "${var.function_name}_agency",
+                "description": "iam ECS FullAccess CommonOperations",
+                "delegated_service_name": "op_svc_cff",
+                "project_role": {
+                    "project": "ap-southeast-3",
+                    "roles": [
+                        "ECS FullAccess"
+                    ]
+                }
+            }
+        },
+        "huaweicloud_fgs_function": {
+            "fgs_function": {
+                "agency": "${huaweicloud_identity_agency.identity_agency.name}",
+                "app": "default",
+                "code_type": "obs",
+                "code_url": "https://documentation-samples-4.obs.ap-southeast-3.myhuaweicloud.com/solution-as-code-moudle/batch-reinstall-os/functiongraph/batch-reinstall-os.zip",
+                "depend_list": ["8d58e3db-b4be-4664-b1f8-10c17d030c82"],
+                "functiongraph_version": "v2",
+                "handler": "batch-reinstall-os.handler",
+                "memory_size": 128,
+                "name": "${var.function_name}_fgs",
+                "runtime": "Python3.6",
+                "timeout": 120,
+                "user_data": "${jsonencode({\r\n region = \"ap-southeast-3\",\r\n image_id = \"${var.image_id}\",\r\n ids = \"${var.ids}\"\r\n })}",
+                "encrypted_user_data": "${jsonencode({\r\n passwords = \"${var.passwords}\"\r\n })}"
+            }
+        }
+    }
+}
