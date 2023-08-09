@@ -1,76 +1,75 @@
 [TOC]
 
-**解决方案介绍**
+**Solution Overview**
 ===============
-该解决方案通过华为云函数工作流服务FunctionGraph的定时触发器，来帮您实现弹性云服务器 ECS批量完成定时更换或重装操作系统。
+This solution uses a FunctionGraph timer trigger to periodically change or reinstall the OS of multiple Elastic Cloud Servers (ECSs).
 
-**架构图**
+**Architecture**
 ---------------
-![方案架构](./document/batch-reinstall-os.png)
+![Architecture](./document/batch-reinstall-os.png)
 
-**架构描述**
+**Architecture Description**
 ---------------
-该解决方案会部署如下资源：
+This solution will:
 
-1、通过华为云提供的弹性云服务器ECS的Python SDK，为函数工作流创建调用云服务器所需的函数依赖包。
+1. Create the required function dependency with the Python SDK of ECS.
 
-2、创建函数工作流，用来调用弹性云服务器ECS的相关接口，实现重装或更新操作系统的业务逻辑。
+2. Create a FunctionGraph function to call the ECS API used to reinstall or change the OS.
 
-3、创建定时触发器TIMER的计划事件功能，指定固定频率定期调用函数工作流代码，实现定期重装或更新操作系统。
+3. Create a timer to periodically invoke the function code.
 
-4、通过统一身份认证服务的委托功能，将帐号Region内ECS的操作权限委托给函数工作流服务。
+4. Create an agency in Identity and Access Management (IAM) to delegate FunctionGraph to access ECS in the relevant region.
 
-**组织结构**
+**File Structure**
 ---------------
 ``` lua
 huaweicloud-solution-batch-reinstall-os-at-scheduled-time
-├── batch-reinstall-os.tf.json -- 资源编排模板
+├── batch-reinstall-os.tf.json -- Resource orchestration template
 ├── functiongraph
-    ├── batch-reinstall-os.py  -- 函数文件
+    ├── batch-reinstall-os.py  -- Function file
 ```
-**开始使用**
+**Getting Started**
 ---------------
-1. 登录华为云控制台，搜索FunctionGraph点击进入函数列表。
+1. Log in to the Huawei Cloud console, search for FunctionGraph, and go to the function list.
 
-    图1 华为云控制台
+    Figure 1 Huawei Cloud console~~~~
 
-    ![华为云控制台](./document/readme-image-001.png)
+    ![Huawei Cloud console](./document/readme-image-001.png)
 
-2. 在函数列表中查看该方案创建的函数。
+2. View the function created for this solution.
 
-     图2 已创建的函数
- 
-     ![已创建的函数](./document/readme-image-002.png)
-
-3. 进入函数主页，单击“测试”在弹出窗口中选择“空白模板”单击“创建”配置测试事件。
-
-    图3 函数主页
-
-    ![函数主页](./document/readme-image-003.png)
-
-    图4 配置测试事件
-
-    ![配置测试事件](./document/readme-image-004.png)
-
-4. 在函数主页，单击“测试”调用函数，实现批量重装或切换操作系统。页面右侧执行结果返回如下信息表示执行成功。
-
-    图5 调用函数
+    Figure 2 Created function
     
-    ![调用函数](./document/readme-image-005.png)
+    ![Created function](./document/readme-image-002.png)
 
-    图6 执行成功
+3. Go to the function details page, and click Test. In the displayed dialog box, select blank-template, and click Create to create a test event.
+
+    Figure 3 Function details page
     
-    ![执行成功](./document/readme-image-006.png)
+    ![Function details page](./document/readme-image-003.png)
 
-5. 在函数服务的监控中，可以查看已经完成重装操作系统的请求日志信息。
-
-    图7 请求日志
+    Figure 4 Configuring a test event
     
-    ![请求日志](./document/readme-image-007.png)
+    ![Configuring a test event](./document/readme-image-004.png)
 
-6. 若有新的弹性云服务器ECS重装或者切换操作系统需求，可进入函数主页依次单击“设置"“环境变量”，在“值”输入框内填入相应的内容，单击“保存”后按照步骤4重新执行调用函数即可。
+4. On the function details page, click Test to invoke the function to reinstall or change the OS. If information similar to the following is returned, the execution is successful.
 
-    图8 设置环境变量
+    Figure 5 Invoking a function
     
-    ![设置环境变量](./document/readme-image-008.png)
+    ![Invoking a function](./document/readme-image-005.png)
 
+    Figure 6 Execution successful
+    
+    ![Execution successful](./document/readme-image-006.png)
+
+5. On the Monitoring tab, view the request logs about OS reinstallation.
+
+    Figure 7 Request logs
+    
+    ![Request logs](./document/readme-image-007.png)
+
+6. To reinstall or change the OS of other ECSs, go to the function details page, choose Configuration > Environment Variables, enter variable values, and click Save. Then invoke the function again by referring to Step 4.
+
+    Figure 8 Setting environment variables
+    
+    ![Setting environment variables](./document/readme-image-008.png)
