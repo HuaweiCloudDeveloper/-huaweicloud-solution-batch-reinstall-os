@@ -3,6 +3,7 @@
 **Solution Overview**
 ===============
 This solution uses a FunctionGraph timer trigger to periodically change or reinstall the OS of multiple Elastic Cloud Servers (ECSs).
+For details, visit https://www.huaweicloud.com/intl/en-us/solution/implementations/roecs.html.
 
 **Architecture**
 ---------------
